@@ -21,14 +21,14 @@ int labelCount = HHTS::hhts(image, labels, 500, 0.0, 32, 64, HHTS::ColorChannel:
 
 ### Multi-level segmentation
 ```
-Mat labels;
+vector<Mat> labels;
 vector<int> spCounts{100, 250, 500};
 vector<int> labelCounts = HHTS::hhts(image, labels, spCounts, 0.0, 32, 64, HHTS::ColorChannel::RGB | HHTS::ColorChannel::LAB | HHTS::ColorChannel::HSV, false, noArray());
 ```
 
 ### Auto-terminating segmentation
 ```
-Mat labels;
+vector<Mat> labels;
 vector<int> spCounts{500, -1};
 vector<int> labelCounts = HHTS::hhts(image, labels, spCounts, 0.0, 32, 64, HHTS::ColorChannel::RGB | HHTS::ColorChannel::LAB | HHTS::ColorChannel::HSV, false, noArray());
 ```
@@ -40,6 +40,10 @@ Superpixels play a crucial role in image processing by partitioning an image int
 ![HHTS samples](assets/hhts-mean-random-more.svg?raw=true)
 
 ![HHTS samples](assets/hhts-mean-random-detail.svg?raw=true)
+
+## Evaluation
+
+Our [Evaluation Repository](https://github.com/changtvs/hhts-evaluation) contains an implementation for the [Superpixel Benchmark](https://github.com/davidstutz/superpixel-benchmark) by Stutz et al. The current implementation may yield slightly different results as stated in our paper. The metrics used for Figure 4 can be found in the file [output/hhts/data-from-paper-figure4.csv](https://github.com/changtvs/hhts-evaluation/blob/master/output/hhts/data-from-paper-figure4.csv).
 
 ## License
 
