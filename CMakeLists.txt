@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26.0)
+cmake_minimum_required(VERSION 3.14.0)
 get_filename_component(EXE_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 project(${EXE_NAME} VERSION 0.1.0)
 

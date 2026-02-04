@@ -27,8 +27,11 @@ namespace HHTS
     {
         RGB = 1,
         HSV = 2,
-        LAB = 4
+        LAB = 4,
+        ALPHA = 8,
     };
+
+    void getChannels(InputArray image, int colorChannels, vector<Mat> &channels, bool applyBlur);
 
     struct SplitParams
     {
@@ -76,12 +79,12 @@ namespace HHTS
     };
 
     // returns label count
-    int hhts(const InputArray image, const OutputArray outputLabels, const int superpixels, const double splitThreshold = 0.0, const int histogramBins = 16, const int minSegmentSize = 64, const int colorChannels = RGB | HSV | LAB,
-                    const bool applyBlur = false, const InputArray preLabels = noArray());
+    int hhts(const vector<Mat> &channels, const OutputArray outputLabels, const int superpixels, const double splitThreshold = 0.0, const int histogramBins = 16, const int minSegmentSize = 64,
+             const InputArray preLabels = noArray());
 
-    vector<int> hhts(const InputArray image, const OutputArrayOfArrays outputLabels,
-                    const vector<int> &superpixels = {}, const double splitThreshold = 0.0, const int histogramBins = 16, const int minSegmentSize = 64, const int colorChannels = RGB | HSV | LAB,
-                    const bool applyBlur = false, const InputArray preLabels = noArray());
+    vector<int> hhts(const vector<Mat> &channels, const OutputArrayOfArrays outputLabels,
+                     const vector<int> &superpixels = {}, const double splitThreshold = 0.0, const int histogramBins = 16, const int minSegmentSize = 64,
+                     const InputArray preLabels = noArray());
 }
 
 #endif /* _HHTS_ */

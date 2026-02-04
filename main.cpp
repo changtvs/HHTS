@@ -31,7 +31,10 @@ void testSingleLevel()
 
     boost::timer::cpu_timer timer;
 
-    int labelCount = HHTS::hhts(image, labels, spCount, 0.0, 32, minDetailSize, HHTS::ColorChannel::RGB | HHTS::ColorChannel::LAB | HHTS::ColorChannel::HSV, false, noArray());
+    vector<Mat> channels;
+    HHTS::getChannels(image, HHTS::ColorChannel::RGB | HHTS::ColorChannel::LAB | HHTS::ColorChannel::HSV, channels, false);
+
+    int labelCount = HHTS::hhts(channels, labels, spCount, 0.0, 32, minDetailSize, noArray());
 
     boost::chrono::duration<double> secondsWall = boost::chrono::nanoseconds(timer.elapsed().wall);
     double elapsedWall = secondsWall.count();
@@ -53,7 +56,10 @@ void testMultiLevel()
 
     boost::timer::cpu_timer timer;
 
-    vector<int> labelCounts = HHTS::hhts(image, labels, spCounts, 0.0, 32, minDetailSize, HHTS::ColorChannel::RGB | HHTS::ColorChannel::LAB | HHTS::ColorChannel::HSV, false, noArray());
+    vector<Mat> channels;
+    HHTS::getChannels(image, HHTS::ColorChannel::RGB | HHTS::ColorChannel::LAB | HHTS::ColorChannel::HSV, channels, false);
+
+    vector<int> labelCounts = HHTS::hhts(channels, labels, spCounts, 0.0, 32, minDetailSize, noArray());
 
     boost::chrono::duration<double> secondsWall = boost::chrono::nanoseconds(timer.elapsed().wall);
     double elapsedWall = secondsWall.count();
@@ -78,7 +84,10 @@ void testAutotermination()
 
     boost::timer::cpu_timer timer;
 
-    vector<int> labelCounts = HHTS::hhts(image, labels, spCounts, 0.0, 32, minDetailSize, HHTS::ColorChannel::RGB | HHTS::ColorChannel::LAB | HHTS::ColorChannel::HSV, false, noArray());
+    vector<Mat> channels;
+    HHTS::getChannels(image, HHTS::ColorChannel::RGB | HHTS::ColorChannel::LAB | HHTS::ColorChannel::HSV, channels, false);
+
+    vector<int> labelCounts = HHTS::hhts(channels, labels, spCounts, 0.0, 32, minDetailSize, noArray());
 
     boost::chrono::duration<double> secondsWall = boost::chrono::nanoseconds(timer.elapsed().wall);
     double elapsedWall = secondsWall.count();
@@ -91,10 +100,35 @@ void testAutotermination()
     }
 }
 
+void testDepthImages()
+{
+    int spCount = -1;
+    int minDetailSize = 64;
+
+    Mat image = imread("wjooxf.png", IMREAD_UNCHANGED);
+    Mat labels;
+    InputArray mask = noArray();
+
+    boost::timer::cpu_timer timer;
+
+    vector<Mat> channels;
+    HHTS::getChannels(image, HHTS::RGB | HHTS::ALPHA, channels, false);
+
+    int labelCount = HHTS::hhts(channels, labels, spCount, 0.0, 32, minDetailSize, noArray());
+
+    boost::chrono::duration<double> secondsWall = boost::chrono::nanoseconds(timer.elapsed().wall);
+    double elapsedWall = secondsWall.count();
+    cout << elapsedWall << endl;
+
+    imshow("mean labels " + to_string(labelCount), getColoredLabels(labels, image));
+    imshow("random labels " + to_string(labelCount), getColoredLabels(labels));
+}
+
 int main(int argc, char *argv[])
 {
-    testSingleLevel();
+    // testSingleLevel();
     // testMultiLevel();
     // testAutotermination();
+    testDepthImages();
     waitKey();
 }

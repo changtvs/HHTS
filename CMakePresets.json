@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "wsl-release",
+      "displayName": "WSL Release with Vcpkg",
+      "description": "Configures for release build on WSL using vcpkg.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/wsl-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-linux"
+      },
+      "environment": {
+        "VCPKG_ROOT": "~/vcpkg"
+      }
+    }
+  ]
+}

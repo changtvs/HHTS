@@ -8,60 +8,56 @@
 
 namespace HHTS
 {
-    void getChannels(InputArray image, int colorChannels, OutputArrayOfArrays outputChannels, bool applyBlur)
+    void getChannels(InputArray image, int colorChannels, vector<Mat> &channels, bool applyBlur)
     {
-        vector<Mat> channels;
         const int blurSize = 3;
 
-        if ((colorChannels & RGB) > 0)
+        if ((colorChannels & RGB) > 0 || (colorChannels & ALPHA) > 0)
         {
             Mat img;
-            Mat chs[3];
             image.copyTo(img);
             if (applyBlur)
             {
                 GaussianBlur(img, img, Size(blurSize, blurSize), 0, 0);
             }
-            split(img, chs);
-            channels.push_back(chs[2]);
-            channels.push_back(chs[1]);
-            channels.push_back(chs[0]);
+
+            if ((colorChannels & RGB) > 0)
+            {
+                extractChannel(img, channels.emplace_back(), 0);
+                extractChannel(img, channels.emplace_back(), 1);
+                extractChannel(img, channels.emplace_back(), 2);
+            }
+
+            if ((colorChannels & ALPHA) > 0)
+            {
+                extractChannel(img, channels.emplace_back(), 3);
+            }
         }
 
         if ((colorChannels & HSV) > 0)
         {
             Mat img;
-            Mat chs[3];
             cvtColor(image, img, COLOR_BGR2HSV);
             if (applyBlur)
             {
                 GaussianBlur(img, img, Size(blurSize, blurSize), 0, 0);
             }
-            split(img, chs);
-            channels.push_back(chs[0]);
-            channels.push_back(chs[1]);
-            channels.push_back(chs[2]);
+            extractChannel(img, channels.emplace_back(), 0);
+            extractChannel(img, channels.emplace_back(), 1);
+            extractChannel(img, channels.emplace_back(), 2);
         }
 
         if ((colorChannels & LAB) > 0)
         {
             Mat img;
-            Mat chs[3];
             cvtColor(image, img, COLOR_BGR2Lab);
             if (applyBlur)
             {
                 GaussianBlur(img, img, Size(blurSize, blurSize), 0, 0);
             }
-            split(img, chs);
-            channels.push_back(chs[0]);
-            channels.push_back(chs[1]);
-            channels.push_back(chs[2]);
-        }
-
-        outputChannels.create(Size(channels.size(), 1), CV_8UC1);
-        for (int iChannel = 0; iChannel < channels.size(); iChannel++)
-        {
-            channels[iChannel].copyTo(outputChannels.getMatRef(iChannel));
+            extractChannel(img, channels.emplace_back(), 0);
+            extractChannel(img, channels.emplace_back(), 1);
+            extractChannel(img, channels.emplace_back(), 2);
         }
     }
 
@@ -331,21 +327,18 @@ namespace HHTS
         }
     }
 
-    int hhts(const InputArray image, const OutputArray outputLabels, const int superpixels, const double splitThreshold, const int histogramBins, const int minSegmentSize, const int colorChannels, const bool applyBlur, const InputArray inputPreLabels)
+    int hhts(const vector<Mat> &channels, const OutputArray outputLabels, const int superpixels, const double splitThreshold, const int histogramBins, const int minSegmentSize, const InputArray inputPreLabels)
     {
         vector<Mat> labels;
         const vector<int> superpixelss = {superpixels};
-        const vector<int> labelCounts = hhts(image, labels, superpixelss, splitThreshold, histogramBins, minSegmentSize, colorChannels, applyBlur, inputPreLabels);
+        const vector<int> labelCounts = hhts(channels, labels, superpixelss, splitThreshold, histogramBins, minSegmentSize, inputPreLabels);
         labels[0].copyTo(outputLabels.getMatRef());
         return labelCounts[0];
     }
 
-    vector<int> hhts(const InputArray image, const OutputArrayOfArrays outputLabels, const vector<int> &superpixels, const double splitThreshold, const int histogramBins, const int minSegmentSize, const int colorChannels, const bool applyBlur, const InputArray inputPreLabels)
+    vector<int> hhts(const vector<Mat> &channels, const OutputArrayOfArrays outputLabels, const vector<int> &superpixels, const double splitThreshold, const int histogramBins, const int minSegmentSize, const InputArray inputPreLabels)
     {
-        const Size size = image.size();
-
-        vector<Mat> channels;
-        getChannels(image, colorChannels, channels, applyBlur);
+        const Size size = channels[0].size();
 
         SplitParams splitParams(superpixels, splitThreshold, histogramBins, minSegmentSize);
 
